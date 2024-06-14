@@ -1,0 +1,54 @@
+{
+    "name": "XRInputActions",
+    "maps": [
+        {
+            "name": "Plyaer",
+            "id": "9edcf797-5017-4003-bc90-bbf3985468ee",
+            "actions": [
+                {
+                    "name": "New action",
+                    "type": "Button",
+                    "id": "226c13d9-1f94-4577-b2f2-01e2ba335089",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Move",
+                    "type": "Value",
+                    "id": "08f80206-e7d8-4356-938d-7309ceaca131",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "ce55098d-3bb4-4d1c-8629-d90bf4049aff",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "New action",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "5c7c3464-bb33-4f44-ad51-48acfbace8be",
+                    "path": "<XRController>{LeftHand}/{Primary2DAxis}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}
