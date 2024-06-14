@@ -1,9 +1,9 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class ShootRay : MonoBehaviour
 {
-    public Hand hand;
-    public Quiver quiver;
     [SerializeField] private LineRenderer lineRenderer;
     public float damageAmount = 100f; // 데미지 양
     public int skillIndex = 0; // 스킬 인덱스
@@ -40,8 +40,6 @@ public class ShootRay : MonoBehaviour
             // 충돌한 물체의 레이어가 "Monster"인 경우 데미지를 줌
             if (hit.collider.gameObject.layer == monsterLayer)
             {
-                hand.setArrow = false;
-                quiver.arrowList[skillIndex] -= 1;
                 // 충돌한 몬스터에게 데미지를 줌
                 Monster monster = hit.collider.GetComponent<Monster>();
                 if (monster != null)
@@ -50,14 +48,14 @@ public class ShootRay : MonoBehaviour
                 }
 
                 // 스킬 실행
-                SkillAction(skillIndex, ray.origin, ray.direction);
+                SkillAction(skillIndex, hit.point, ray.direction, hit.collider.transform);
             }
         }
         else
         {
             // 레이가 아무 물체와도 충돌하지 않았을 때
             lineRenderer.SetPosition(0, ray.origin);
-            lineRenderer.SetPosition(1, ray.origin + ray.direction * n*100); // 최대 거리 n 지점으로 설정
+            lineRenderer.SetPosition(1, ray.origin + ray.direction * n); // 최대 거리 n 지점으로 설정
         }
 
         // 레이를 시각적으로 보이도록 설정
@@ -67,26 +65,27 @@ public class ShootRay : MonoBehaviour
         Invoke("DisableLineRenderer", 0.1f);
     }
 
-    private void SkillAction(int n, Vector3 origin, Vector3 direction)
+    private void SkillAction(int n, Vector3 hitPoint, Vector3 direction, Transform hitTransform)
     {
         switch (n)
         {
             case 0:
                 // 스킬 0: Penetrate 스킬 발동
-                skill.penetrateSkill.PenetrateMonsters(origin, direction);
+                skill.penetrateSkill.PenetrateMonsters(hitPoint, direction);
                 break;
             case 1:
-                // 스킬 1: Explosion 스킬 발동
-                skill.explosionSkill.Explode();
+                // 스킬 1: Explosion 스
+                skill.explosionSkill.Explode(hitTransform);
                 break;
             case 2:
                 // 스킬 2: Freeze 스킬 발동
-                StartCoroutine(skill.freezeSkill.FreezeOverTime());
+                StartCoroutine(skill.freezeSkill.FreezeOverTime(hitPoint));
                 break;
             case 3:
                 // 스킬 3: Fire 스킬 발동
-                StartCoroutine(skill.fireSkill.DealDamageOverTime());
+                StartCoroutine(skill.fireSkill.DealDamageOverTime(hitPoint));
                 break;
+
             case 4:
                 // 스킬 4: 추가적인 스킬 동작
                 break;
@@ -94,6 +93,7 @@ public class ShootRay : MonoBehaviour
                 break;
         }
     }
+
 
     void DisableLineRenderer()
     {

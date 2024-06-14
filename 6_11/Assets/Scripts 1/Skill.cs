@@ -10,18 +10,41 @@ public class Skill : MonoBehaviour
         [SerializeField] private float damageAmount = 100f;
         [SerializeField] private float maxPenetrationDistance = 100f;
         [SerializeField] private GameObject arrowPrefab;
+        [SerializeField] private LineRenderer lineRendererPrefab; // LineRenderer 프리팹
 
         private Transform transform;
+        private LineRenderer lineRendererInstance;
 
-        public Penetrate(Transform transform)
+        public void Initialize(Transform transform)
         {
             this.transform = transform;
+            if (lineRendererPrefab != null)
+            {
+                lineRendererInstance = GameObject.Instantiate(lineRendererPrefab);
+                lineRendererInstance.positionCount = 0;
+                lineRendererInstance.enabled = false;
+                InitializeLineRenderer();
+            }
+        }
+
+        private void InitializeLineRenderer()
+        {
+            lineRendererInstance.startColor = Color.blue;
+            lineRendererInstance.endColor = Color.blue;
+            lineRendererInstance.startWidth = 0.2f; // 두께 조정
+            lineRendererInstance.endWidth = 0.2f;   // 두께 조정
         }
 
         public void PenetrateMonsters(Vector3 origin, Vector3 direction)
         {
-            Ray ray = new Ray(origin, direction);
+            float offset = 0.1f; // 예시로 0.1f만큼 떨어뜨리겠습니다.
+            Vector3 adjustedOrigin = origin - direction * offset;
+
+            Ray ray = new Ray(adjustedOrigin, direction);
             RaycastHit[] hits = Physics.RaycastAll(ray, maxPenetrationDistance, LayerMask.GetMask("Monster"));
+
+            List<Vector3> points = new List<Vector3>();
+            points.Add(adjustedOrigin);
 
             foreach (RaycastHit hit in hits)
             {
@@ -29,16 +52,40 @@ public class Skill : MonoBehaviour
                 if (monster != null)
                 {
                     monster.TakeDamage(damageAmount);
+                    points.Add(hit.point);
                 }
-
                 if (arrowPrefab != null)
                 {
-                    Instantiate(arrowPrefab, hit.point, Quaternion.LookRotation(ray.direction));
+                    Instantiate(arrowPrefab, origin, Quaternion.LookRotation(ray.direction));
                 }
+            }
+
+            if (points.Count > 1)
+            {
+                DrawLines(points);
+            }
+        }
+
+        private void DrawLines(List<Vector3> points)
+        {
+            if (lineRendererInstance != null)
+            {
+                lineRendererInstance.positionCount = points.Count;
+                lineRendererInstance.SetPositions(points.ToArray());
+                lineRendererInstance.enabled = true;
+                transform.GetComponent<MonoBehaviour>().StartCoroutine(DisableLineRendererAfterTime(0.1f));
+            }
+        }
+
+        private IEnumerator DisableLineRendererAfterTime(float time)
+        {
+            yield return new WaitForSeconds(time);
+            if (lineRendererInstance != null)
+            {
+                lineRendererInstance.enabled = false;
             }
         }
     }
-
     [System.Serializable]
     public class Explosion
     {
@@ -48,14 +95,18 @@ public class Skill : MonoBehaviour
 
         private Transform transform;
 
-        public Explosion(Transform transform)
+        public void Initialize(Transform transform)
         {
             this.transform = transform;
         }
 
-        public void Explode()
+        public void Explode(Transform hitTransform)
         {
-            Collider[] colliders = Physics.OverlapSphere(transform.position, explosionRadius);
+            Collider[] colliders = Physics.OverlapSphere(hitTransform.position, explosionRadius);
+            if (explosionPrefab != null)
+            {
+                Instantiate(explosionPrefab, hitTransform.position, Quaternion.Euler(-90, 0, 0));
+            }
             foreach (Collider collider in colliders)
             {
                 if (collider.gameObject.layer == LayerMask.NameToLayer("Monster"))
@@ -65,22 +116,14 @@ public class Skill : MonoBehaviour
                     {
                         monster.TakeDamage(damageAmount);
                     }
-
-                    if (explosionPrefab != null)
-                    {
-                        Instantiate(explosionPrefab, collider.transform.position, Quaternion.identity);
-                    }
                 }
             }
         }
 
-        public void DrawGizmos()
+        public void DrawGizmos(Vector3 hitPoint)
         {
-            if (transform != null)
-            {
-                Gizmos.color = Color.red;
-                Gizmos.DrawWireSphere(transform.position, explosionRadius);
-            }
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(hitPoint, explosionRadius);
         }
     }
 
@@ -94,18 +137,24 @@ public class Skill : MonoBehaviour
         private Transform transform;
         private Dictionary<Monster, float> originalSpeeds = new Dictionary<Monster, float>();
 
-        public Freeze(Transform transform)
+        public void Initialize(Transform transform)
         {
             this.transform = transform;
         }
 
-        public IEnumerator FreezeOverTime()
+        public IEnumerator FreezeOverTime(Vector3 hitPoint)
         {
             float elapsed = 0f;
+            GameObject freezeInstance = null;
+
+            if (freezePrefab != null)
+            {
+                freezeInstance = Instantiate(freezePrefab, hitPoint, Quaternion.identity);
+            }
 
             while (elapsed < damageDuration)
             {
-                Collider[] colliders = Physics.OverlapSphere(transform.position, fireRadius);
+                Collider[] colliders = Physics.OverlapSphere(hitPoint, fireRadius);
                 HashSet<Monster> affectedMonsters = new HashSet<Monster>();
 
                 foreach (Collider collider in colliders)
@@ -122,11 +171,6 @@ public class Skill : MonoBehaviour
 
                             monster.MoveSpeed = originalSpeeds[monster] / 2;
                             affectedMonsters.Add(monster);
-
-                            if (freezePrefab != null)
-                            {
-                                Instantiate(freezePrefab, collider.transform.position, Quaternion.identity);
-                            }
                         }
                     }
                 }
@@ -155,15 +199,17 @@ public class Skill : MonoBehaviour
             }
 
             originalSpeeds.Clear();
+
+            if (freezeInstance != null)
+            {
+                Destroy(freezeInstance);
+            }
         }
 
-        public void DrawGizmos()
+        public void DrawGizmos(Vector3 hitPoint)
         {
-            if (transform != null)
-            {
-                Gizmos.color = Color.red;
-                Gizmos.DrawWireSphere(transform.position, fireRadius);
-            }
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(hitPoint, fireRadius);
         }
     }
 
@@ -177,18 +223,24 @@ public class Skill : MonoBehaviour
 
         private Transform transform;
 
-        public Fire(Transform transform)
+        public void Initialize(Transform transform)
         {
             this.transform = transform;
         }
 
-        public IEnumerator DealDamageOverTime()
+        public IEnumerator DealDamageOverTime(Vector3 hitPoint)
         {
             float elapsed = 0f;
+            GameObject fireInstance = null;
+
+            if (firePrefab != null)
+            {
+                fireInstance = Instantiate(firePrefab, hitPoint, Quaternion.Euler(-90, 0, 0));
+            }
 
             while (elapsed < damageDuration)
             {
-                Collider[] colliders = Physics.OverlapSphere(transform.position, fireRadius);
+                Collider[] colliders = Physics.OverlapSphere(hitPoint, fireRadius);
                 foreach (Collider collider in colliders)
                 {
                     if (collider.gameObject.layer == LayerMask.NameToLayer("Monster"))
@@ -197,11 +249,6 @@ public class Skill : MonoBehaviour
                         if (monster != null)
                         {
                             monster.TakeDamage(damageAmountPerSecond);
-
-                            if (firePrefab != null)
-                            {
-                                Instantiate(firePrefab, collider.transform.position, Quaternion.identity);
-                            }
                         }
                     }
                 }
@@ -209,46 +256,48 @@ public class Skill : MonoBehaviour
                 yield return new WaitForSeconds(1f);
                 elapsed += 1f;
             }
+
+            if (fireInstance != null)
+            {
+                Destroy(fireInstance);
+            }
         }
 
-        public void DrawGizmos()
+        public void DrawGizmos(Vector3 hitPoint)
         {
-            if (transform != null)
-            {
-                Gizmos.color = Color.red;
-                Gizmos.DrawWireSphere(transform.position, fireRadius);
-            }
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(hitPoint, fireRadius);
         }
     }
 
-    public Penetrate penetrateSkill;
-    public Explosion explosionSkill;
-    public Freeze freezeSkill;
-    public Fire fireSkill;
+    public Penetrate penetrateSkill = new Penetrate();
+    public Explosion explosionSkill = new Explosion();
+    public Freeze freezeSkill = new Freeze();
+    public Fire fireSkill = new Fire();
 
     private void Awake()
     {
-        penetrateSkill = new Penetrate(transform);
-        explosionSkill = new Explosion(transform);
-        freezeSkill = new Freeze(transform);
-        fireSkill = new Fire(transform);
+        penetrateSkill.Initialize(transform);
+        explosionSkill.Initialize(transform);
+        freezeSkill.Initialize(transform);
+        fireSkill.Initialize(transform);
     }
 
     private void OnDrawGizmosSelected()
     {
         if (explosionSkill != null)
         {
-            explosionSkill.DrawGizmos();
+            explosionSkill.DrawGizmos(transform.position);
         }
 
         if (freezeSkill != null)
         {
-            freezeSkill.DrawGizmos();
+            freezeSkill.DrawGizmos(transform.position);
         }
 
         if (fireSkill != null)
         {
-            fireSkill.DrawGizmos();
+            fireSkill.DrawGizmos(transform.position);
         }
     }
 }

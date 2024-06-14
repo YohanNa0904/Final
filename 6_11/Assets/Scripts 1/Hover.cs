@@ -22,6 +22,7 @@ public class Hover : MonoBehaviour
             {
                 PerformAction();
                 handScript.setArrow = false;
+                handScript.ArrowOff(arrowIndex);
             }
         }
     }

@@ -1,2 +1,5 @@
 * text eol=crlf 
 AritfactDB filter=lfs diff=lfs merge=lfs -text
+Birds[[:space:]]in[[:space:]]the[[:space:]]Bass[[:space:]]Valley,[[:space:]]Victoria,[[:space:]]Austalia[[:space:]].wav filter=lfs diff=lfs merge=lfs -text
+Birds[[:space:]]in[[:space:]]the[[:space:]]Bass[[:space:]]Valley,[[:space:]]Victoria,[[:space:]]Australia.[[:space:]]wav filter=lfs diff=lfs merge=lfs -text
+/sound.wav filter=lfs diff=lfs merge=lfs -text
