@@ -22206,6 +22206,7 @@ GameObject:
   - component: {fileID: 6651300593230626871}
   - component: {fileID: 7971122819425080881}
   - component: {fileID: 2956747326778411651}
+  - component: {fileID: 3517691971420756804}
   m_Layer: 0
   m_Name: Goblin
   m_TagString: Untagged
@@ -22241,7 +22242,7 @@ Animator:
   m_GameObject: {fileID: 3205469957615439393}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: 247c80268b595f74aad500096f912a45, type: 3}
-  m_Controller: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 129d402d557d2c54a96f652d5d781e1b, type: 2}
   m_CullingMode: 1
   m_UpdateMode: 0
   m_ApplyRootMotion: 1
@@ -22262,10 +22263,10 @@ CapsuleCollider:
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
-  m_Radius: 0.5
-  m_Height: 1
+  m_Radius: 0.3
+  m_Height: 1.5
   m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Center: {x: 0, y: 0.80286276, z: 0}
 --- !u!54 &7971122819425080881
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -22280,7 +22281,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 80
   m_CollisionDetection: 0
 --- !u!195 &2956747326778411651
 NavMeshAgent:
@@ -22291,7 +22292,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 3205469957615439393}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.5
+  m_Radius: 0.3
   m_Speed: 3.5
   m_Acceleration: 8
   avoidancePriority: 50
@@ -22300,10 +22301,34 @@ NavMeshAgent:
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1
   m_AutoRepath: 1
-  m_Height: 2
+  m_Height: 1.5
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!114 &3517691971420756804
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3205469957615439393}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38eb56e5477242d418afc9072eef6871, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  nvAgent: {fileID: 2956747326778411651}
+  curState: 0
+  HP: 0
+  attackDamage: 0
+  attackDist: 0
+  attackRate: 0
+  nextAttackTime: 0
+  MoveSpeed: 0
+  traceDist: 0
+  scoreValue: 0
+  goldValue: 0
+  bowSound: {fileID: 8300000, guid: a86bc151417abaf47951774a8f95ff54, type: 3}
 --- !u!1 &3251599145689043617
 GameObject:
   m_ObjectHideFlags: 0
