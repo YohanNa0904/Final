@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class Goblin : MonoBehaviour
+public class MonsterControll : MonoBehaviour
 {
     public NavMeshAgent navMeshAgent;
     public GameObject player;

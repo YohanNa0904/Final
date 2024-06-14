@@ -62,4 +62,8 @@ public class Hand : MonoBehaviour
             quiver.UpdateArrowText(arrowIndex);
         }
     }
+    public void ArrowOff(int n)
+    {
+        arrowList[n].SetActive(false);
+    }
 }

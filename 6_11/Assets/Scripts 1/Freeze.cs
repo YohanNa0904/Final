@@ -72,4 +72,10 @@ public class Freeze : MonoBehaviour
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, fireRadius);
     }
+    void SomeMethod(Monster monster)
+    {
+        // monster.MoveSpeed 속성에 접근할 수 있습니다.
+        float speed = monster.MoveSpeed;
+        // 추가적인 로직 구현
+    }
 }
